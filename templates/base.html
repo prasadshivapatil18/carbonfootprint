@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CarbonTrack — Personal Carbon Footprint Calculator{% endblock %}</title>
+  <meta name="description" content="Calculate your personal greenhouse gas emissions across transportation, electricity, cooking fuel, diet, waste, and water with realistic regional factors.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-navbar">
+    <div class="container nav-wrapper">
+      <a href="{{ url_for('index') }}" class="brand-logo">
+        <svg class="brand-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+        </svg>
+        <span>CarbonTrack</span>
+      </a>
+
+      <button class="nav-toggle" aria-label="Toggle Navigation Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-menu">
+        <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+        <li><a href="{{ url_for('calculator') }}" class="nav-link {% if request.endpoint == 'calculator' %}active{% endif %}">Calculator</a></li>
+        <li><a href="{{ url_for('history') }}" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">History</a></li>
+        <li><a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">About</a></li>
+        <li><a href="{{ url_for('calculator') }}" class="nav-link nav-btn">Calculate Footprint</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Flash Notifications -->
+  <div class="container flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-alert flash-{{ category }}">
+            <span>{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove();">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content Body -->
+  <main class="main-wrapper">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Global Confirmation Modal -->
+  <div id="confirmDeleteModal" class="modal-backdrop">
+    <div class="modal-content-box">
+      <h3 style="margin-bottom: 12px; color: #1A3822;">Confirm Action</h3>
+      <p id="modalConfirmText" style="color: #576859; font-size: 0.95rem; margin-bottom: 20px;">
+        Are you sure you want to permanently delete this record?
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary-custom" onclick="closeConfirmModal()">Cancel</button>
+        <button type="button" class="btn-danger-custom" onclick="executeConfirmedDelete()">Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h4>
+            <svg style="width: 22px; height: 22px; fill: #A3D49F;" viewBox="0 0 24 24">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+            </svg>
+            CarbonTrack
+          </h4>
+          <p>
+            An open academic carbon footprint calculator designed for realistic individual sustainability tracking.
+          </p>
+          <div style="margin-top: 14px; font-size: 0.85rem; color: #8CAE88;">
+            🔒 100% Local SQLite Database — Zero external telemetry or remote profiling.
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h5>Navigation</h5>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('calculator') }}">Footprint Calculator</a></li>
+            <li><a href="{{ url_for('history') }}">My History</a></li>
+            <li><a href="{{ url_for('about') }}">About & Methodology</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Methodology & Data</h5>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('about') }}#transport">Transport Emission Factors</a></li>
+            <li><a href="{{ url_for('about') }}#electricity">CEA Grid Intensity</a></li>
+            <li><a href="{{ url_for('about') }}#diet">Dietary Impact Metrics</a></li>
+            <li><a href="{{ url_for('about') }}#limitations">Scope & Limitations</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 CarbonTrack. Built for Environmental Studies (EVS).</span>
+        <span>Unit: kg CO₂e / month</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

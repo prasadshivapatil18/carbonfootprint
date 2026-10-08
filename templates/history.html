@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Calculation History — CarbonTrack{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="history-header">
+    <div>
+      <h1>Calculation History</h1>
+      <p>Locally stored carbon audits from this computer.</p>
+    </div>
+    {% if total_entries > 0 %}
+    <div>
+      <form action="{{ url_for('delete_all_history') }}" method="POST" style="display: inline;">
+        <button type="button" 
+                class="btn-danger-custom"
+                data-confirm-delete
+                data-confirm-message="Are you sure you want to permanently delete ALL calculation history? This action cannot be undone.">
+          <svg style="vertical-align: middle; margin-right: 4px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18"/>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+          </svg>
+          Delete All Local Data
+        </button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if total_entries > 0 %}
+    <!-- Summary Metrics -->
+    <div class="history-stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Total Calculations</div>
+        <div class="stat-value">{{ total_entries }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Latest Monthly Impact</div>
+        <div class="stat-value">{{ latest_monthly }} <span style="font-size: 0.9rem; font-weight: 500; color: #576859;">kg CO₂e</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Average Monthly Footprint</div>
+        <div class="stat-value">{{ avg_monthly }} <span style="font-size: 0.9rem; font-weight: 500; color: #576859;">kg CO₂e</span></div>
+      </div>
+    </div>
+
+    <!-- Calculations Table -->
+    <div class="table-card">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Monthly Footprint</th>
+            <th>Yearly Footprint</th>
+            <th>Largest Source</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in calculations %}
+          <tr>
+            <td>
+              <strong>{{ item.formatted_date }}</strong>
+            </td>
+            <td>
+              <span style="font-weight: 700; color: var(--color-forest-deep);">{{ item.total_monthly }}</span> kg CO₂e
+            </td>
+            <td>
+              {{ item.total_yearly_tonnes }} tonnes
+            </td>
+            <td>
+              <span class="largest-category-badge" style="margin: 0; font-size: 0.8rem;">
+                {{ item.largest_category|replace('_', ' ')|title }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <div class="table-actions" style="justify-content: flex-end;">
+                <a href="{{ url_for('results', calc_id=item.id) }}" class="btn-table-view">
+                  View Result
+                </a>
+                <form action="{{ url_for('delete_single_history', calc_id=item.id) }}" method="POST" style="display: inline;">
+                  <button type="button" 
+                          class="btn-table-delete"
+                          data-confirm-delete
+                          data-confirm-message="Are you sure you want to delete the calculation record from {{ item.formatted_date }}?">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% else %}
+    <!-- Empty State -->
+    <div class="table-card empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 6v6l4 2"/>
+      </svg>
+      <h3 style="margin-bottom: 8px;">No Calculation History Found</h3>
+      <p style="margin-bottom: 24px; max-width: 440px; margin-left: auto; margin-right: auto;">
+        You haven't run any footprint calculations yet. Get an instant analysis of your personal emissions today.
+      </p>
+      <a href="{{ url_for('calculator') }}" class="btn-primary-custom">
+        Calculate Your First Footprint
+      </a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

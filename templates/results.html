@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}Calculation Results — CarbonTrack{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="results-header">
+    <h1>Your Carbon Footprint Breakdown</h1>
+    <p>Calculated on {{ calc.formatted_date }} • Saved to your local database</p>
+  </div>
+
+  <!-- Primary Impact Highlight Hero Card -->
+  <div class="impact-hero-card">
+    <div class="impact-hero-left">
+      <h3>Estimated Carbon Footprint</h3>
+      <div class="impact-number-wrap">
+        <span class="impact-number animate-counter" data-target="{{ calc.total_monthly }}">{{ calc.total_monthly }}</span>
+        <span class="impact-unit">kg CO₂e / month</span>
+      </div>
+      <div class="impact-yearly">
+        <span>Projected Annual Impact:</span>
+        <strong><span class="animate-counter" data-target="{{ calc.total_yearly_tonnes }}">{{ calc.total_yearly_tonnes }}</span> tonnes CO₂e / year</strong>
+      </div>
+    </div>
+
+    <div class="impact-hero-right">
+      <h4>Primary Emission Driver</h4>
+      <div class="largest-category-badge">
+        🌿 {{ calc.largest_category|replace('_', ' ')|title }}
+      </div>
+      <p style="color: #D1E7CD; font-size: 0.92rem; margin: 0; line-height: 1.5;">
+        Your largest monthly contribution comes from <strong>{{ calc.largest_category|replace('_', ' ')|title }}</strong>, representing <strong>{{ calc.percentages[calc.largest_category] }}%</strong> of your total emissions.
+      </p>
+    </div>
+  </div>
+
+  <!-- Category Grid Breakdown -->
+  <h2 style="font-size: 1.35rem; margin-bottom: 20px;">Emissions by Activity Category</h2>
+  <div class="category-breakdown-grid">
+
+    <!-- Transportation -->
+    <div class="cat-card transport">
+      <div class="cat-header">
+        <span class="cat-name">Transportation</span>
+        <span class="cat-pct">{{ calc.percentages.transportation }}%</span>
+      </div>
+      <div class="cat-value animate-counter" data-target="{{ calc.transportation }}">{{ calc.transportation }}</div>
+      <div class="cat-unit">kg CO₂e / month</div>
+    </div>
+
+    <!-- Electricity -->
+    <div class="cat-card electricity">
+      <div class="cat-header">
+        <span class="cat-name">Electricity</span>
+        <span class="cat-pct">{{ calc.percentages.electricity }}%</span>
+      </div>
+      <div class="cat-value animate-counter" data-target="{{ calc.electricity }}">{{ calc.electricity }}</div>
+      <div class="cat-unit">kg CO₂e / month</div>
+    </div>
+
+    <!-- LPG / Cooking -->
+    <div class="cat-card lpg">
+      <div class="cat-header">
+        <span class="cat-name">LPG / Cooking</span>
+        <span class="cat-pct">{{ calc.percentages.lpg }}%</span>
+      </div>
+      <div class="cat-value animate-counter" data-target="{{ calc.lpg }}">{{ calc.lpg }}</div>
+      <div class="cat-unit">kg CO₂e / month</div>
+    </div>
+
+    <!-- Food -->
+    <div class="cat-card food">
+      <div class="cat-header">
+        <span class="cat-name">Food & Diet</span>
+        <span class="cat-pct">{{ calc.percentages.food }}%</span>
+      </div>
+      <div class="cat-value animate-counter" data-target="{{ calc.food }}">{{ calc.food }}</div>
+      <div class="cat-unit">kg CO₂e / month</div>
+    </div>
+
+    <!-- Waste -->
+    <div class="cat-card waste">
+      <div class="cat-header">
+        <span class="cat-name">Household Waste</span>
+        <span class="cat-pct">{{ calc.percentages.waste }}%</span>
+      </div>
+      <div class="cat-value animate-counter" data-target="{{ calc.waste }}">{{ calc.waste }}</div>
+      <div class="cat-unit">kg CO₂e / month</div>
+    </div>
+
+    <!-- Water -->
+    <div class="cat-card water">
+      <div class="cat-header">
+        <span class="cat-name">Water Supply</span>
+        <span class="cat-pct">{{ calc.percentages.water }}%</span>
+      </div>
+      <div class="cat-value animate-counter" data-target="{{ calc.water }}">{{ calc.water }}</div>
+      <div class="cat-unit">kg CO₂e / month</div>
+    </div>
+
+  </div>
+
+  <!-- Interactive Charts Section -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Where Your Emissions Come From</h3>
+      <p>Percentage contribution of each daily activity</p>
+      <div class="chart-container">
+        <canvas id="emissionsDoughnutChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Monthly Carbon Breakdown (kg CO₂e)</h3>
+      <p>Direct volume comparison across sectors</p>
+      <div class="chart-container">
+        <canvas id="emissionsBarChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personalized Actionable Recommendations -->
+  <div class="recs-section">
+    <div class="recs-header">
+      <h3>Practical Emission Reduction Suggestions</h3>
+      <p>Targeted suggestions tailored to your highest impact area ({{ calc.largest_category|replace('_', ' ')|title }}):</p>
+    </div>
+
+    <div class="recs-grid">
+      {% for rec in recommendations %}
+      <div class="rec-item">
+        <div class="rec-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <h4 class="rec-title">{{ rec.title }}</h4>
+        <p class="rec-desc">{{ rec.desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Results Bottom Action Bar -->
+  <div class="results-actions">
+    <div>
+      <a href="{{ url_for('history') }}" class="btn-secondary-custom">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        View All History
+      </a>
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button onclick="window.print()" class="btn-secondary-custom">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect width="12" height="8" x="6" y="14"/>
+        </svg>
+        Print / Save PDF
+      </button>
+      <a href="{{ url_for('calculator') }}" class="btn-primary-custom">
+        Recalculate
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const chartData = {
+      transportation: {{ calc.transportation }},
+      electricity: {{ calc.electricity }},
+      lpg: {{ calc.lpg }},
+      food: {{ calc.food }},
+      waste: {{ calc.waste }},
+      water: {{ calc.water }}
+    };
+    renderResultsCharts(chartData);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,508 @@
+{% extends 'base.html' %}
+
+{% block title %}Carbon Footprint Calculator — CarbonTrack{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+
+  <div class="calc-header">
+    <h1>Carbon Footprint Calculator</h1>
+    <p>Choose any <strong>single category or combination of categories</strong> to calculate your carbon footprint. You do not need to fill in all fields.</p>
+  </div>
+
+  <form id="carbon-calculator-form" action="{{ url_for('calculator') }}" method="POST">
+
+    <!-- ==================================================================== -->
+    <!-- CATEGORY SELECTION TOOLBAR                                           -->
+    <!-- ==================================================================== -->
+    <div class="category-selector-panel">
+      <div class="selector-panel-header">
+        <span class="selector-panel-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          Select Categories to Calculate:
+        </span>
+        <div class="quick-select-actions">
+          <button type="button" id="btn-select-all" class="btn-pill-action">Select All</button>
+          <button type="button" id="btn-clear-all" class="btn-pill-action">Clear All</button>
+        </div>
+      </div>
+
+      <div class="category-pills-wrap">
+        <label class="category-pill active" data-category="transportation">
+          <input type="checkbox" checked> 🚗 Transportation
+        </label>
+        <label class="category-pill active" data-category="electricity">
+          <input type="checkbox" checked> ⚡ Electricity
+        </label>
+        <label class="category-pill active" data-category="lpg">
+          <input type="checkbox" checked> 🔥 LPG / Cooking
+        </label>
+        <label class="category-pill active" data-category="food">
+          <input type="checkbox" checked> 🥗 Food & Diet
+        </label>
+        <label class="category-pill active" data-category="waste">
+          <input type="checkbox" checked> 🗑️ Waste
+        </label>
+        <label class="category-pill active" data-category="water">
+          <input type="checkbox" checked> 💧 Water
+        </label>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 1: TRANSPORTATION                                            -->
+    <!-- ==================================================================== -->
+    <div class="calc-section-card" id="sec-transportation">
+      <input type="hidden" name="include_transportation" id="include-input-transportation" value="yes">
+      
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background-color: #FAF2EB; color: #B87244;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+              <circle cx="7" cy="17" r="2"/>
+              <path d="M9 17h6"/>
+              <circle cx="17" cy="17" r="2"/>
+            </svg>
+          </div>
+          <div class="section-title-wrap">
+            <h2>1. Transportation <span class="section-disabled-badge">(Skipped)</span></h2>
+            <p>Personal commuting & transit distance per month.</p>
+          </div>
+        </div>
+        <div>
+          <label class="section-toggle-switch">
+            <input type="checkbox" id="toggle-transportation" checked>
+            <span>Included</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card-body-collapsible">
+        <!-- Personal Vehicle Subsection -->
+        <h4 style="margin-bottom: 14px; color: var(--color-forest-deep); font-size: 1.05rem;">Personal Vehicle</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="vehicle_type">Primary Vehicle Type</label>
+            <select class="form-select-custom" id="vehicle_type" name="vehicle_type">
+              <option value="none">No Personal Vehicle (Walk / Cycle / Transit Only)</option>
+              <option value="petrol_car">Petrol Car (~0.192 kg CO₂e/km)</option>
+              <option value="diesel_car">Diesel Car (~0.171 kg CO₂e/km)</option>
+              <option value="motorcycle" selected>Motorcycle / Scooter (~0.103 kg CO₂e/km)</option>
+              <option value="electric_vehicle">Electric Vehicle (EV) (~0.053 kg CO₂e/km)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="vehicle_daily_distance">
+              Daily Distance
+              <span class="optional-tag">(km/day)</span>
+            </label>
+            <div class="input-with-unit">
+              <input type="number" step="0.1" min="0" max="500" class="form-control-custom" id="vehicle_daily_distance" name="vehicle_daily_distance" placeholder="e.g. 15">
+              <span class="input-unit">km/day</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="vehicle_days_per_month">Travel Days per Month</label>
+            <div class="input-with-unit">
+              <input type="number" min="0" max="31" class="form-control-custom" id="vehicle_days_per_month" name="vehicle_days_per_month" placeholder="e.g. 22">
+              <span class="input-unit">days/mo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Public Transit Subsection -->
+        <h4 style="margin-top: 18px; margin-bottom: 14px; color: var(--color-forest-deep); font-size: 1.05rem;">Public Transportation</h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="bus_monthly_distance">
+              Bus Travel
+              <span class="optional-tag">(monthly km)</span>
+            </label>
+            <div class="input-with-unit">
+              <input type="number" min="0" max="3000" class="form-control-custom" id="bus_monthly_distance" name="bus_monthly_distance" placeholder="e.g. 40">
+              <span class="input-unit">km/month</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="train_monthly_distance">
+              Train / Metro Travel
+              <span class="optional-tag">(monthly km)</span>
+            </label>
+            <div class="input-with-unit">
+              <input type="number" min="0" max="5000" class="form-control-custom" id="train_monthly_distance" name="train_monthly_distance" placeholder="e.g. 50">
+              <span class="input-unit">km/month</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 2: ELECTRICITY                                               -->
+    <!-- ==================================================================== -->
+    <div class="calc-section-card" id="sec-electricity">
+      <input type="hidden" name="include_electricity" id="include-input-electricity" value="yes">
+      
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background-color: #FEF9E7; color: #D4A017;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <div class="section-title-wrap">
+            <h2>2. Electricity <span class="section-disabled-badge">(Skipped)</span></h2>
+            <p>Monthly grid electricity consumed in kilowatt-hours (kWh).</p>
+          </div>
+        </div>
+        <div>
+          <label class="section-toggle-switch">
+            <input type="checkbox" id="toggle-electricity" checked>
+            <span>Included</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card-body-collapsible">
+        <div class="form-grid">
+          <div class="form-group form-grid-full">
+            <label class="form-label" for="electricity_kwh">Monthly Electricity Consumption</label>
+            <div class="input-with-unit">
+              <input type="number" step="1" min="0" max="5000" class="form-control-custom" id="electricity_kwh" name="electricity_kwh" placeholder="e.g. 120">
+              <span class="input-unit">kWh / units</span>
+            </div>
+            <div class="form-hint">Factor: ~{{ factors.electricity.kg_co2e_per_kwh }} kg CO₂e per kWh (CEA Indian Grid Average). Leave blank if not auditing.</div>
+          </div>
+        </div>
+
+        <div class="info-accordion">
+          <details>
+            <summary class="accordion-summary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" x2="12" y1="16" y2="12"/>
+                <line x1="12" x2="12.01" y1="8" y2="8"/>
+              </svg>
+              Where to find kWh on your electricity bill?
+            </summary>
+            <div class="accordion-content">
+              Look for <strong>"Total Units"</strong> or <strong>"Billed Units (kWh)"</strong> on your monthly electricity bill.
+              <ul style="margin-left: 20px; margin-top: 6px;">
+                <li>Single person / 1BHK: ~75 - 120 kWh/month</li>
+                <li>2-3 BHK (with refrigerator & fans): ~150 - 250 kWh/month</li>
+                <li>Household with regular AC usage: ~300 - 550+ kWh/month</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 3: LPG / COOKING FUEL                                        -->
+    <!-- ==================================================================== -->
+    <div class="calc-section-card" id="sec-lpg">
+      <input type="hidden" name="include_lpg" id="include-input-lpg" value="yes">
+      
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background-color: #FDF1EB; color: #C85A32;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+            </svg>
+          </div>
+          <div class="section-title-wrap">
+            <h2>3. LPG / Cooking Fuel <span class="section-disabled-badge">(Skipped)</span></h2>
+            <p>Liquefied petroleum gas used for domestic cooking.</p>
+          </div>
+        </div>
+        <div>
+          <label class="section-toggle-switch">
+            <input type="checkbox" id="toggle-lpg" checked>
+            <span>Included</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card-body-collapsible">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="lpg_cylinders_per_month">Cylinders Used per Month</label>
+            <div class="input-with-unit">
+              <input type="number" step="0.1" min="0" max="20" class="form-control-custom" id="lpg_cylinders_per_month" name="lpg_cylinders_per_month" placeholder="e.g. 0.75 or 1">
+              <span class="input-unit">cylinders/mo</span>
+            </div>
+            <div class="form-hint">Tip: If a 14.2 kg cylinder lasts 45 days, enter <strong>0.67</strong>.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="lpg_cylinder_size">
+              Cylinder Size
+              <span class="optional-tag">(default standard)</span>
+            </label>
+            <div class="input-with-unit">
+              <input type="number" step="0.1" min="1" max="50" class="form-control-custom" id="lpg_cylinder_size" name="lpg_cylinder_size" value="14.2">
+              <span class="input-unit">kg</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 4: FOOD QUESTIONNAIRE                                       -->
+    <!-- ==================================================================== -->
+    <div class="calc-section-card" id="sec-food">
+      <input type="hidden" name="include_food" id="include-input-food" value="yes">
+      
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background-color: #EAF3E8; color: #4E8752;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <div class="section-title-wrap">
+            <h2>4. Food & Diet <span class="section-disabled-badge">(Skipped)</span></h2>
+            <p>Approximate frequency of dietary items in your monthly routine.</p>
+          </div>
+        </div>
+        <div>
+          <label class="section-toggle-switch">
+            <input type="checkbox" id="toggle-food" checked>
+            <span>Included</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card-body-collapsible">
+        <div style="background-color: #FAFBF9; border: 1px solid var(--color-card-border); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 16px; font-size: 0.86rem; color: var(--color-text-muted);">
+          Dietary carbon footprint is estimated using lifecycle averages for agriculture, feed, processing, and distribution.
+        </div>
+
+        <table class="food-table">
+          <thead>
+            <tr>
+              <th>Food Category</th>
+              <th>Consumption Frequency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Red Meat / Beef</strong></td>
+              <td>
+                <div class="radio-group-horizontal">
+                  <label class="radio-option-label"><input type="radio" name="food_beef" value="rarely" checked> Rarely/Never</label>
+                  <label class="radio-option-label"><input type="radio" name="food_beef" value="occasionally"> Occasionally</label>
+                  <label class="radio-option-label"><input type="radio" name="food_beef" value="frequently"> Frequently</label>
+                  <label class="radio-option-label"><input type="radio" name="food_beef" value="daily"> Daily</label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Chicken / Poultry</strong></td>
+              <td>
+                <div class="radio-group-horizontal">
+                  <label class="radio-option-label"><input type="radio" name="food_chicken" value="rarely" checked> Rarely/Never</label>
+                  <label class="radio-option-label"><input type="radio" name="food_chicken" value="occasionally"> Occasionally</label>
+                  <label class="radio-option-label"><input type="radio" name="food_chicken" value="frequently"> Frequently</label>
+                  <label class="radio-option-label"><input type="radio" name="food_chicken" value="daily"> Daily</label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Fish / Seafood</strong></td>
+              <td>
+                <div class="radio-group-horizontal">
+                  <label class="radio-option-label"><input type="radio" name="food_fish" value="rarely" checked> Rarely/Never</label>
+                  <label class="radio-option-label"><input type="radio" name="food_fish" value="occasionally"> Occasionally</label>
+                  <label class="radio-option-label"><input type="radio" name="food_fish" value="frequently"> Frequently</label>
+                  <label class="radio-option-label"><input type="radio" name="food_fish" value="daily"> Daily</label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Eggs</strong></td>
+              <td>
+                <div class="radio-group-horizontal">
+                  <label class="radio-option-label"><input type="radio" name="food_eggs" value="rarely" checked> Rarely/Never</label>
+                  <label class="radio-option-label"><input type="radio" name="food_eggs" value="occasionally"> Occasionally</label>
+                  <label class="radio-option-label"><input type="radio" name="food_eggs" value="frequently"> Frequently</label>
+                  <label class="radio-option-label"><input type="radio" name="food_eggs" value="daily"> Daily</label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Dairy (Milk, Curd, Paneer)</strong></td>
+              <td>
+                <div class="radio-group-horizontal">
+                  <label class="radio-option-label"><input type="radio" name="food_dairy" value="rarely" checked> Rarely/Never</label>
+                  <label class="radio-option-label"><input type="radio" name="food_dairy" value="occasionally"> Occasionally</label>
+                  <label class="radio-option-label"><input type="radio" name="food_dairy" value="frequently"> Frequently</label>
+                  <label class="radio-option-label"><input type="radio" name="food_dairy" value="daily"> Daily</label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Vegetarian Grains & Pulses</strong></td>
+              <td>
+                <div class="radio-group-horizontal">
+                  <label class="radio-option-label"><input type="radio" name="food_vegetarian" value="rarely" checked> Rarely/Never</label>
+                  <label class="radio-option-label"><input type="radio" name="food_vegetarian" value="occasionally"> Occasionally</label>
+                  <label class="radio-option-label"><input type="radio" name="food_vegetarian" value="frequently"> Frequently</label>
+                  <label class="radio-option-label"><input type="radio" name="food_vegetarian" value="daily"> Daily</label>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 5: HOUSEHOLD WASTE                                           -->
+    <!-- ==================================================================== -->
+    <div class="calc-section-card" id="sec-waste">
+      <input type="hidden" name="include_waste" id="include-input-waste" value="yes">
+      
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background-color: #F5EFEB; color: #7E6551;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18"/>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+            </svg>
+          </div>
+          <div class="section-title-wrap">
+            <h2>5. Waste & Recycling <span class="section-disabled-badge">(Skipped)</span></h2>
+            <p>Solid waste generated and diversion through recycling & composting.</p>
+          </div>
+        </div>
+        <div>
+          <label class="section-toggle-switch">
+            <input type="checkbox" id="toggle-waste" checked>
+            <span>Included</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card-body-collapsible">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="waste_weekly_kg">Household Waste Generated</label>
+            <div class="input-with-unit">
+              <input type="number" step="0.5" min="0" max="100" class="form-control-custom" id="waste_weekly_kg" name="waste_weekly_kg" placeholder="e.g. 5">
+              <span class="input-unit">kg/week</span>
+            </div>
+            <div class="form-hint">Average urban household produces 4-8 kg/week. Leave blank to skip.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="waste_recycling_pct">Dry Waste Recycled</label>
+            <div class="input-with-unit">
+              <input type="number" min="0" max="100" class="form-control-custom" id="waste_recycling_pct" name="waste_recycling_pct" placeholder="e.g. 30">
+              <span class="input-unit">% recycled</span>
+            </div>
+          </div>
+
+          <div class="form-group form-grid-full">
+            <label class="form-label">Composting for Organic Wet Waste?</label>
+            <div class="radio-group-horizontal" style="margin-top: 6px;">
+              <label class="radio-option-label">
+                <input type="radio" name="waste_composting" value="no" checked> No (Sent to landfill)
+              </label>
+              <label class="radio-option-label">
+                <input type="radio" name="waste_composting" value="yes"> Yes (Composted at home/apartment)
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- SECTION 6: WATER USAGE                                               -->
+    <!-- ==================================================================== -->
+    <div class="calc-section-card" id="sec-water">
+      <input type="hidden" name="include_water" id="include-input-water" value="yes">
+      
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background-color: #EBF5F8; color: #3E8B9E;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+          </div>
+          <div class="section-title-wrap">
+            <h2>6. Water Consumption <span class="section-disabled-badge">(Skipped)</span></h2>
+            <p>Treated municipal and groundwater pumping emissions.</p>
+          </div>
+        </div>
+        <div>
+          <label class="section-toggle-switch">
+            <input type="checkbox" id="toggle-water" checked>
+            <span>Included</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card-body-collapsible">
+        <div class="form-group">
+          <label class="form-label">Water Entry Method:</label>
+          <div class="radio-group-horizontal" style="margin-bottom: 16px;">
+            <label class="radio-option-label">
+              <input type="radio" name="water_entry_mode" value="people" checked> Estimate by household size
+            </label>
+            <label class="radio-option-label">
+              <input type="radio" name="water_entry_mode" value="direct"> Enter exact monthly liters
+            </label>
+          </div>
+        </div>
+
+        <div id="water-estimate-container" class="form-group">
+          <label class="form-label" for="water_household_people">Number of People in Household</label>
+          <div class="input-with-unit" style="max-width: 320px;">
+            <input type="number" min="1" max="20" class="form-control-custom" id="water_household_people" name="water_household_people" placeholder="e.g. 3">
+            <span class="input-unit">people</span>
+          </div>
+          <div class="form-hint">Standard CPHEEO Indian urban benchmark (~135 liters/person/day).</div>
+        </div>
+
+        <div id="water-direct-container" class="form-group" style="display: none;">
+          <label class="form-label" for="water_monthly_liters">Monthly Water Volume</label>
+          <div class="input-with-unit" style="max-width: 320px;">
+            <input type="number" min="0" max="100000" class="form-control-custom" id="water_monthly_liters" name="water_monthly_liters" placeholder="e.g. 12000">
+            <span class="input-unit">liters/month</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Action Bar -->
+    <div class="calc-action-bar">
+      <div>
+        <a href="{{ url_for('index') }}" class="btn-secondary-custom">Back to Home</a>
+      </div>
+      <div>
+        <button type="submit" class="btn-primary-custom">
+          Calculate Footprint
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" x2="19" y1="12" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}CarbonTrack — Personal Carbon Footprint Calculator{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-tag">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      Personal Environmental Accounting
+    </div>
+    
+    <h1 class="hero-title">Measure Your Carbon Footprint</h1>
+    <p class="hero-subtitle">
+      Understand how your everyday choices affect the planet and discover simple ways to reduce your environmental impact.
+    </p>
+
+    <div class="hero-actions">
+      <a href="{{ url_for('calculator') }}" class="btn-primary-custom">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect width="16" height="20" x="4" y="2" rx="2"/>
+          <line x1="8" x2="16" y1="6" y2="6"/>
+          <line x1="16" x2="16" y1="14"/>
+          <path d="M16 10h.01"/>
+          <path d="M12 10h.01"/>
+          <path d="M8 10h.01"/>
+          <path d="M12 14h.01"/>
+          <path d="M8 14h.01"/>
+          <path d="M12 18h.01"/>
+          <path d="M8 18h.01"/>
+        </svg>
+        Calculate My Footprint
+      </a>
+      <a href="{{ url_for('about') }}" class="btn-secondary-custom">
+        Learn Methodology
+      </a>
+    </div>
+  </section>
+
+  <!-- Privacy Callout -->
+  <div class="privacy-banner">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+    <div class="privacy-text">
+      <strong>Complete Local Privacy:</strong> Your calculations and inputs are stored locally on this computer in a standalone SQLite database. No personal data, tracking cookies, or network telemetry are sent to any remote server.
+    </div>
+  </div>
+
+  <!-- 3 Core Pillars -->
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-icon-box">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4"/>
+          <path d="M12 8h.01"/>
+        </svg>
+      </div>
+      <h3 class="pillar-title">Understand</h3>
+      <p class="pillar-text">
+        See where your emissions come from across personal mobility, electricity, cooking gas, weekly diet, waste generation, and household water usage.
+      </p>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-icon-box">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18"/>
+          <path d="m19 9-5 5-4-4-3 3"/>
+        </svg>
+      </div>
+      <h3 class="pillar-title">Measure</h3>
+      <p class="pillar-text">
+        Calculate your estimated CO₂ footprint in standard <strong>kg CO₂e</strong> per month and tonnes CO₂e per year, aligned with authoritative IPCC & CEA emission baselines.
+      </p>
+    </div>
+
+    <div class="pillar-card">
+      <div class="pillar-icon-box">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+        </svg>
+      </div>
+      <h3 class="pillar-title">Reduce</h3>
+      <p class="pillar-text">
+        Get practical, tailored recommendations to lower your impact based on your largest emission categories without disruptive lifestyle friction.
+      </p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

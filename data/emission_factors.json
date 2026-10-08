@@ -1,0 +1,52 @@
+{
+  "description": "Standard greenhouse gas emission factors for personal carbon footprint calculations. Values reflect realistic Indian/regional baselines (CEA, MoEFCC, IPCC).",
+  "version": "1.0.0",
+  "units": {
+    "distance": "km",
+    "electricity": "kWh",
+    "lpg": "kg",
+    "water": "liters",
+    "waste": "kg",
+    "emissions": "kg CO2e"
+  },
+  "transportation": {
+    "petrol_car": 0.192,
+    "diesel_car": 0.171,
+    "motorcycle": 0.103,
+    "electric_vehicle": 0.053,
+    "bus": 0.045,
+    "train_metro": 0.032
+  },
+  "electricity": {
+    "kg_co2e_per_kwh": 0.71,
+    "note": "Central Electricity Authority (CEA) India national grid carbon intensity baseline (approx. 0.71-0.75 kg CO2e/kWh)."
+  },
+  "lpg": {
+    "kg_co2e_per_kg": 2.98,
+    "default_cylinder_weight_kg": 14.2,
+    "note": "IPCC & Ministry of Petroleum standard emission factor for liquefied petroleum gas combustion."
+  },
+  "food": {
+    "frequencies_monthly_kg_co2e": {
+      "beef": { "rarely": 4.0, "occasionally": 20.0, "frequently": 55.0, "daily": 110.0 },
+      "chicken": { "rarely": 2.0, "occasionally": 8.0, "frequently": 22.0, "daily": 45.0 },
+      "fish": { "rarely": 1.5, "occasionally": 6.0, "frequently": 16.0, "daily": 32.0 },
+      "eggs": { "rarely": 0.5, "occasionally": 2.0, "frequently": 6.0, "daily": 12.0 },
+      "dairy": { "rarely": 2.0, "occasionally": 8.0, "frequently": 20.0, "daily": 40.0 },
+      "vegetarian": { "rarely": 1.0, "occasionally": 4.0, "frequently": 10.0, "daily": 20.0 },
+      "vegan": { "rarely": 0.5, "occasionally": 2.0, "frequently": 5.0, "daily": 10.0 }
+    },
+    "note": "Estimates based on lifecycle analysis (Poore & Nemecek, Science) tailored for monthly household consumption patterns."
+  },
+  "waste": {
+    "kg_co2e_per_kg_waste": 0.58,
+    "recycling_benefit_rate": 0.60,
+    "composting_benefit_rate": 0.35,
+    "note": "Based on municipal solid waste landfill methane emission defaults adjusted for diverted recycling and organic composting."
+  },
+  "water": {
+    "kg_co2e_per_liter": 0.00035,
+    "daily_liters_per_person_default": 135.0,
+    "note": "Represents municipal water treatment and pumping energy carbon intensity (approx. 0.35 kg CO2e per 1,000 liters)."
+  }
+}
